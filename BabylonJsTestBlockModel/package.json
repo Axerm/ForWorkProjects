@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@babylonjs/core": "^6.4.1",
+    "typescript": "^5.0.4",
+    "vite": "^4.3.5"
+  },
+  "devDependencies": {
+    "@babylonjs/inspector": "^6.4.1",
+    "@babylonjs/materials": "^6.4.1"
+  }
+}

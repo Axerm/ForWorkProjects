@@ -1,0 +1,1200 @@
+// myMaterial.specularColor = new Color3(0.5, 0.6, 0.87);
+        // myMaterial.emissiveColor = new Color3(1, 1, 1);
+        // myMaterial.ambientColor = new Color3(0.23, 0.98, 0.53);
+
+        // var meshesMaterial = new StandardMaterial('myMaterial', scene);
+        // meshesMaterial.alpha = 1;
+        // meshesMaterial.diffuseColor = new Color3(1.0, 0.2, 0.7);
+
+        // var cube = MeshBuilder.CreateBox("box", { size: 30 }, scene);
+        // cube.material = myMaterial;
+
+        // var fileName = "../modules/Блочная модель_cut_45k.csv";
+        // Tools.LoadFile(fileName, (data: string) => {
+        //     var blocks: string[] = data.split(/\r?\n/);
+
+        //     for (var i: number = 0; i < blocks.length; i++)
+        //     {
+        //         let subBlock = blocks[i].split(';');
+        //         let x = +subBlock[0],
+        //             y = +subBlock[1],
+        //             z = +subBlock[2],
+        //             size = +subBlock[3];
+        //         // console.log(subBlock);
+                
+        //         let clone = cube.createInstance('x' + x + 'y' + y + 'z' + z);
+
+        //         clone.position.x = x;
+        //         clone.position.y = y;
+        //         clone.position.z = z;
+
+        //         clone.rotationQuaternion = null;
+        //         clone.alwaysSelectAsActiveMesh = true;
+        //         clone.freezeWorldMatrix();
+        //         clone.isPickable = true;
+        //         clone.material.freeze();
+        //     }
+        // });
+
+
+        // OBJFileLoader.OPTIMIZE_WITH_UV = true;
+        // SceneLoader.Load("../modules/", "Поверхность карьера_1й вариант.obj", engine, function (scene) {
+        //     // do something with the scene
+        //     console.log('Mesh Loaded');
+        // });
+
+        // SceneLoader.Append("https://quizgametesting.000webhostapp.com/BtcObj/", "Btco.obj", scene, function (newMeshes) {
+        //     scene.activeCamera = null;
+        //     scene.createDefaultCameraOrLight(true);
+        //     scene.activeCamera.attachControl(canvas, false);
+        // });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// SceneLoader.Append("../modules/", "Поверхность карьера_2й вариант.obj", scene, function (scene) {
+        //     scene.meshes[0].material = myMaterial;
+        //     camera.focusOn([scene.meshes[0]], true);
+        //     // camera.setTarget(scene.meshes[0]);
+        // });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import "@babylonjs/core/Debug/debugLayer";
+import { Color3, SceneLoader, StandardMaterial, Tools, VertexBuffer, VertexData } from "@babylonjs/core/";
+import "@babylonjs/inspector";
+import { OBJFileLoader } from "@babylonjs/loaders"
+import Stats from "stats.js";
+import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder } from "@babylonjs/core";
+
+class App {
+    constructor() {
+        // create the canvas html element and attach it to the webpage
+        // var canvas = document.createElement("canvas");
+        // canvas.style.width = "100%";
+        // canvas.style.height = "1";
+        // canvas.id = "gameCanvas";
+        // document.body.appendChild(canvas);
+
+        var canvas = document.getElementById("canvas") as HTMLCanvasElement;
+        
+        var stats = new Stats();
+        stats.showPanel(0);
+        document.body.appendChild(stats.dom);
+
+        // initialize babylon scene and engine
+        var engine = new Engine(canvas, true);
+        var scene = new Scene(engine);
+
+        scene.debugLayer.show();
+
+        // var camera: ArcRotateCamera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 2, Vector3.Zero(), scene);
+        // var camera = new ArcRotateCamera("camera", Tools.ToRadians(90), Tools.ToRadians(55), 200, Vector3.Zero(), scene);
+        
+        camera.attachControl(canvas, true);
+
+        var light: HemisphericLight = new HemisphericLight("light1", new Vector3(0, -1500, 0), scene);
+        //var light2: HemisphericLight = new HemisphericLight("light2", new Vector3(0, 150, 0), scene);
+
+        const myMaterial = new StandardMaterial("myMaterial", scene);
+
+        myMaterial.alpha = 1;
+        myMaterial.diffuseColor = new Color3(1, 0, 1);
+        
+
+        
+
+
+        // hide/show the Inspector
+        window.addEventListener("keydown", (ev) => {
+            // Shift+Ctrl+Alt+I
+            if (ev.shiftKey && ev.ctrlKey && ev.altKey && ev.keyCode === 73) {
+                if (scene.debugLayer.isVisible()) {
+                    scene.debugLayer.hide();
+                } else {
+                    scene.debugLayer.show();
+                }
+            }
+        });
+
+        // run the main render loop
+        engine.runRenderLoop(() => {
+            stats.begin();
+            scene.render();
+            stats.end();
+            // stats.update();
+        });
+    }
+}
+
+new App();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import "@babylonjs/core/Debug/debugLayer";
+import { Color3, SceneLoader, StandardMaterial, Tools, VertexBuffer, VertexData } from "@babylonjs/core/";
+import "@babylonjs/inspector";
+import { OBJFileLoader } from "@babylonjs/loaders"
+import Stats from "stats.js";
+import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder } from "@babylonjs/core";
+
+class App {
+    constructor() {
+        // create the canvas html element and attach it to the webpage
+        // var canvas = document.createElement("canvas");
+        // canvas.style.width = "100%";
+        // canvas.style.height = "1";
+        // canvas.id = "gameCanvas";
+        // document.body.appendChild(canvas);
+
+        var canvas = document.getElementById("canvas") as HTMLCanvasElement;
+        
+        var stats = new Stats();
+        stats.showPanel(0);
+        document.body.appendChild(stats.dom);
+
+        // initialize babylon scene and engine
+        var engine = new Engine(canvas, true);
+        var scene = new Scene(engine);
+
+        scene.debugLayer.show();
+
+        // var camera: ArcRotateCamera = new ArcRotateCamera("Camera", Math.PI / 2, Math.PI / 2, 2, Vector3.Zero(), scene);
+        var camera: ArcRotateCamera = new ArcRotateCamera("camera", Tools.ToRadians(90), Tools.ToRadians(90), 10, Vector3.Zero(), scene);
+        
+        camera.attachControl(canvas, true);
+
+        var light: HemisphericLight = new HemisphericLight("light1", new Vector3(0, -1500, 0), scene);
+        //var light2: HemisphericLight = new HemisphericLight("light2", new Vector3(0, 150, 0), scene);
+
+        const myMaterial = new StandardMaterial("myMaterial", scene);
+
+        // myMaterial.alpha = 1;
+        myMaterial.wireframe = true;
+        
+        var box = MeshBuilder.CreateBox("box", { size: 5 }, scene);
+        box.material = myMaterial;
+
+        camera.setTarget(box);
+        
+
+
+        // hide/show the Inspector
+        window.addEventListener("keydown", (ev) => {
+            // Shift+Ctrl+Alt+I
+            if (ev.shiftKey && ev.ctrlKey && ev.altKey && ev.keyCode === 73) {
+                if (scene.debugLayer.isVisible()) {
+                    scene.debugLayer.hide();
+                } else {
+                    scene.debugLayer.show();
+                }
+            }
+        });
+
+        // run the main render loop
+        engine.runRenderLoop(() => {
+            stats.begin();
+            scene.render();
+            stats.end();
+            // stats.update();
+        });
+    }
+}
+
+new App();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//const myMaterial = new StandardMaterial("myMaterial", scene);
+        //myMaterial.alpha = 1;
+        //myMaterial.wireframe = true;
+        
+        //var box = MeshBuilder.CreateBox("box", { size: 5 }, scene);
+        //box.material = myMaterial;
+        //camera.setTarget(box);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        import "@babylonjs/core/Debug/debugLayer";
+import { Color3, FreeCamera, InstancedMesh, Matrix, SceneLoader, StandardMaterial, Tools, VertexBuffer, VertexData } from "@babylonjs/core/";
+import "@babylonjs/inspector";
+import { OBJFileLoader } from "@babylonjs/loaders"
+import Stats from "stats.js";
+import { Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder } from "@babylonjs/core";
+
+class App {
+    constructor() {
+        // create the canvas html element and attach it to the webpage
+        // var canvas = document.createElement("canvas");
+        // canvas.style.width = "100%";
+        // canvas.style.height = "1";
+        // canvas.id = "gameCanvas";
+        // document.body.appendChild(canvas);
+
+        var canvas = document.getElementById("canvas") as HTMLCanvasElement;
+        
+        var stats = new Stats();
+        stats.showPanel(0);
+        document.body.appendChild(stats.dom);
+
+        // initialize babylon scene and engine
+        var engine = new Engine(canvas, true);
+        var scene = new Scene(engine);
+
+        scene.debugLayer.show();
+
+        // var camera: ArcRotateCamera = new ArcRotateCamera("arcCamera", Tools.ToRadians(90), Tools.ToRadians(90), 10, Vector3.Zero(), scene);
+        var camera: FreeCamera = new FreeCamera("freeCamera", new Vector3(0, 10, -10), scene);
+        
+        camera.attachControl(canvas, true);
+
+        // var light: HemisphericLight = new HemisphericLight("light1", new Vector3(0, -150, 0), scene);
+        var light2: HemisphericLight = new HemisphericLight("light2", new Vector3(0, 0, 0), scene);
+
+        const myMaterial = new StandardMaterial("myMaterial", scene);
+        myMaterial.alpha = 1;
+        myMaterial.diffuseColor = new Color3(142 / 255, 139 / 255, 175 / 255);
+
+        var cube = MeshBuilder.CreateBox("box", { size: 10 }, scene);
+        cube.material = myMaterial;
+
+        var fileName = "../modules/Блочная модель_cut_5k.csv";
+        Tools.LoadFile(fileName, (data: string) => {
+            var blocks: string[] = data.split(/\r?\n/);
+            let targetPosition: Vector3 = Vector3.Zero();
+
+            for (var i: number = 1; i < blocks.length; i++)
+            {
+                let subBlock = blocks[i].split(';');
+                let x = +subBlock[0],
+                    y = +subBlock[1],
+                    z = +subBlock[2]
+                    // , size = +subBlock[3]
+                    ;
+                // console.log(subBlock);
+                
+                let clone = cube.createInstance('x' + x + 'y' + y + 'z' + z);
+                let clonePosition = new Vector3(x, y, z);
+
+                clone.position = clonePosition;
+                clone.rotationQuaternion = null;
+                clone.alwaysSelectAsActiveMesh = true;
+                clone.freezeWorldMatrix();
+                clone.isPickable = true;
+                clone.material.freeze();
+
+                if (i === 1)
+                    targetPosition = new Vector3(clonePosition.x, clonePosition.y, clonePosition.z);
+            }
+
+            camera.position = targetPosition;
+        });
+
+        
+
+        // hide/show the Inspector
+        window.addEventListener("keydown", (ev) => {
+            // Shift+Ctrl+Alt+I
+            if (ev.shiftKey && ev.ctrlKey && ev.altKey && ev.keyCode === 73) {
+                if (scene.debugLayer.isVisible()) {
+                    scene.debugLayer.hide();
+                } else {
+                    scene.debugLayer.show();
+                }
+            }
+        });
+
+        // run the main render loop
+        engine.runRenderLoop(() => {
+            stats.begin();
+            scene.render();
+            stats.end();
+            // stats.update();
+        });
+    }
+}
+
+new App();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import {
+    Color3, FreeCamera, InstancedMesh, Matrix, SceneLoader, StandardMaterial, Tools, VertexBuffer, VertexData,
+    Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder
+} from "@babylonjs/core/";
+//import { OBJFileLoader } from "@babylonjs/loaders";
+import "@babylonjs/core/Debug/debugLayer";
+import "@babylonjs/inspector";
+import Stats from "stats.js";
+
+class App {
+    canvas: HTMLCanvasElement;
+
+    constructor() {
+        this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
+        
+        var stats = new Stats();
+        stats.showPanel(0);
+        document.body.appendChild(stats.dom);
+
+        // initialize babylon scene and engine
+        var engine = new Engine(this.canvas, true);
+        var scene = new Scene(engine);
+
+        scene.debugLayer.show();
+
+        // var camera: ArcRotateCamera = new ArcRotateCamera("arcCamera", Tools.ToRadians(90), Tools.ToRadians(90), 10, Vector3.Zero(), scene);
+        var camera: FreeCamera = new FreeCamera("freeCamera", new Vector3(0, 10, -10), scene);
+        
+        camera.attachControl(canvas, true);
+
+        // var light: HemisphericLight = new HemisphericLight("light1", new Vector3(0, -150, 0), scene);
+        var light2: HemisphericLight = new HemisphericLight("light2", new Vector3(0, 0, 0), scene);
+
+        const myMaterial = new StandardMaterial("myMaterial", scene);
+        myMaterial.alpha = 1;
+        myMaterial.diffuseColor = new Color3(142 / 255, 139 / 255, 175 / 255);
+
+        var cube = MeshBuilder.CreateBox("box", { size: 10 }, scene);
+        cube.material = myMaterial;
+
+        var fileName = "../modules/Блочная модель.csv";
+        Tools.LoadFile(fileName, (data: string) => {
+            var blocks: string[] = data.split(/\r?\n/);
+            let targetPosition: Vector3 = Vector3.Zero();
+
+            for (var i: number = 1; i < blocks.length; i++)
+            {
+                let subBlock = blocks[i].split(';');
+                let x = +subBlock[0],
+                    y = +subBlock[1],
+                    z = +subBlock[2]
+                    // , size = +subBlock[3]
+                    ;
+                // console.log(subBlock);
+                
+                var matrix = Matrix.Translation(x, y, z);
+                cube.thinInstanceAdd(matrix);
+
+
+                // clone.rotationQuaternion = null;
+                // clone.alwaysSelectAsActiveMesh = true;
+                // clone.freezeWorldMatrix();
+                // clone.isPickable = true;
+                // clone.material.freeze();
+
+                if (i === 1)
+                    targetPosition = new Vector3(x, y, z);
+            }
+
+            camera.position = targetPosition;
+        });
+
+        
+
+        // hide/show the Inspector
+        window.addEventListener("keydown", (ev) => {
+            // Shift+Ctrl+Alt+I
+            if (ev.shiftKey && ev.ctrlKey && ev.altKey && ev.keyCode === 73) {
+                if (scene.debugLayer.isVisible()) {
+                    scene.debugLayer.hide();
+                } else {
+                    scene.debugLayer.show();
+                }
+            }
+        });
+
+        // run the main render loop
+        engine.runRenderLoop(() => {
+            stats.begin();
+            scene.render();
+            stats.end();
+            // stats.update();
+        });
+    }
+}
+
+new App();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let maxSize: number = 500, blocksCount: number = 10_000, exactBlocksCount: number = 0;
+
+        for (let i: number = 0; i < maxSize && exactBlocksCount <= blocksCount; i++)
+        for (let j: number = 0; j < maxSize && exactBlocksCount <= blocksCount; j++)
+        {
+            var matrix = Matrix.Translation(i, 0, j);
+            cube.thinInstanceAdd(matrix);
+            exactBlocksCount++;
+
+            // let clone = cube.createInstance('x' + i + 'y' + 0 + 'z' + j);
+            // let clonePosition = new Vector3(i, 0, j);
+            // exactBlocksCount++;
+            // clone.position = clonePosition;
+            // clone.rotationQuaternion = null;
+            // clone.alwaysSelectAsActiveMesh = true;
+            // clone.freezeWorldMatrix();
+            // clone.isPickable = true;
+            // clone.material.freeze();
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let cube: Mesh = MeshBuilder.CreateBox("box", { size: 1 }, scene);
+        cube.material = defaultMaterial;
+
+        const offsetCoef = 2;
+        let instanceCount: number = 4_900,
+            instanciatedCount: number = 0,
+            maxSize: number = 500,
+            offset: number = offsetCoef / (instanceCount - 1);
+        let matricesData: Float32Array = new Float32Array(16 * instanceCount);
+        let m = Matrix.Identity();
+
+        for (let i: number = 0; i < maxSize && instanciatedCount <= instanceCount; i++)
+        {
+            // m.m[13] = -offsetCoef / 2 + offset * i;
+            //console.log(m.m[13]);
+            //m.addAtIndex(12, offsetCoef / 2 + offset * i)
+            for (let j: number = 0; j < maxSize && instanciatedCount <= instanceCount; j++)
+            {
+                //m.addAtIndex(13, offsetCoef / 2 + offset * j)
+                m.copyToArray(matricesData, instanciatedCount * 16);
+                instanciatedCount++;
+            }
+        }
+
+        //
+
+        cube.thinInstanceSetBuffer("matrix", matricesData, 16);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import {
+    Color3, FreeCamera, InstancedMesh, Matrix, SceneLoader, StandardMaterial, Tools, VertexBuffer, VertexData,
+    Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder
+} from "@babylonjs/core/";
+//import { OBJFileLoader } from "@babylonjs/loaders";
+import "@babylonjs/core/Debug/debugLayer";
+import "@babylonjs/inspector";
+import Stats from "stats.js";
+
+class BlockModel {
+    //private canvas: HTMLCanvasElement;
+
+    constructor() {}
+
+    run(): void {
+        this.init();
+    }
+
+    private init(): void {
+        let canvas = document.getElementById("canvas") as HTMLCanvasElement;
+        
+        let stats = new Stats();
+        stats.showPanel(0);
+        document.body.appendChild(stats.dom);
+
+        // initialize babylon scene and engine
+        let engine = new Engine(canvas, true);
+        let scene = new Scene(engine);
+
+        scene.debugLayer.show();
+
+        // var camera: ArcRotateCamera = new ArcRotateCamera("arcCamera", Tools.ToRadians(90), Tools.ToRadians(90), 10, Vector3.Zero(), scene);
+        var camera: FreeCamera = new FreeCamera("freeCamera", new Vector3(0, 0, 0), scene);
+        camera.attachControl(canvas, true);
+
+        // let light: HemisphericLight = new HemisphericLight("light1", new Vector3(0, -150, 0), scene);
+        // let light2: HemisphericLight = new HemisphericLight("light2", new Vector3(0, 1, 0), scene);
+
+        const defaultMaterial: StandardMaterial = new StandardMaterial("defaultMaterial", scene);
+        //defaultMaterial.alpha = 1;
+        defaultMaterial.disableLighting = true;
+        // defaultMaterial.diffuseColor = new Color3(142 / 255, 139 / 255, 175 / 255);
+        defaultMaterial.emissiveColor = new Color3(142 / 255, 139 / 255, 175 / 255);
+
+        let box: Mesh = MeshBuilder.CreateBox("box", { size: 1 }, scene);
+        box.material = defaultMaterial;
+
+        //
+
+        var numPerSide = 40, size = 100, ofst = size / (numPerSide - 1);
+
+        var m = Matrix.Identity();
+        var col = 0, index = 0;
+
+        let instanceCount = numPerSide * numPerSide * numPerSide;
+
+        let matricesData = new Float32Array(16 * instanceCount);
+        let colorData = new Float32Array(4 * instanceCount);
+
+        for (var x = 0; x < numPerSide; x++) {
+            m.addAtIndex(12, -size / 2 + ofst * x);
+            for (var y = 0; y < numPerSide; y++) {
+                m.addAtIndex(13, -size / 2 + ofst * y);
+                for (var z = 0; z < numPerSide; z++) {
+                    m.addAtIndex(13, -size / 2 + ofst * z);
+                    m.copyToArray(matricesData, index * 16);
+
+                    var coli = Math.floor(col);
+
+                    colorData[index * 4 + 0] = ((coli & 0xff0000) >> 16) / 255;
+                    colorData[index * 4 + 1] = ((coli & 0x00ff00) >>  8) / 255;
+                    colorData[index * 4 + 2] = ((coli & 0x0000ff) >>  0) / 255;
+                    colorData[index * 4 + 3] = 1.0;
+
+                    index++;
+                    col += 0xffffff / instanceCount;
+                }
+            }
+        }
+
+        box.thinInstanceSetBuffer("matrix", matricesData, 16);
+        box.thinInstanceSetBuffer("color", colorData, 4);
+
+        //
+
+        // hide/show the Inspector
+        window.addEventListener("keydown", (ev) => {
+            // Shift+Ctrl+Alt+I
+            if (ev.shiftKey && ev.ctrlKey && ev.altKey && ev.keyCode === 73) {
+                if (scene.debugLayer.isVisible()) {
+                    scene.debugLayer.hide();
+                } else {
+                    scene.debugLayer.show();
+                }
+            }
+        });
+
+        window.addEventListener( 'resize', () => {
+			const width = window.innerWidth;
+			const height = window.innerHeight;
+
+            canvas.width = width;
+            canvas.height = height;
+		} );
+
+        // run the main render loop
+        engine.runRenderLoop(() => {
+            stats.begin();
+            scene.render();
+            stats.end();
+            // stats.update();
+        });
+    }
+}
+
+let app = new BlockModel();
+app.run();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import {
+    Color3, FreeCamera, InstancedMesh, Matrix, SceneLoader, StandardMaterial, Tools, VertexBuffer, VertexData,
+    Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder
+} from "@babylonjs/core/";
+//import { OBJFileLoader } from "@babylonjs/loaders";
+import "@babylonjs/core/Debug/debugLayer";
+import "@babylonjs/inspector";
+import Stats from "stats.js";
+
+let canvas = document.getElementById("canvas") as HTMLCanvasElement;
+        
+let stats = new Stats();
+stats.showPanel(0);
+document.body.appendChild(stats.dom);
+
+// initialize babylon scene and engine
+let engine = new Engine(canvas, true);
+let scene = new Scene(engine);
+
+// var camera: ArcRotateCamera = new ArcRotateCamera("arcCamera", Tools.ToRadians(90), Tools.ToRadians(90), 10, Vector3.Zero(), scene);
+var camera: FreeCamera = new FreeCamera("freeCamera", new Vector3(0, 0, 0), scene);
+camera.attachControl(canvas, true);
+
+// let light: HemisphericLight = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
+
+const defaultMaterial: StandardMaterial = new StandardMaterial("defaultMaterial", scene);
+// defaultMaterial.alpha = 1;
+defaultMaterial.disableLighting = true;
+// defaultMaterial.diffuseColor = new Color3(142 / 255, 139 / 255, 175 / 255);
+defaultMaterial.emissiveColor = new Color3(142 / 255, 139 / 255, 175 / 255);
+
+let box: Mesh = MeshBuilder.CreateBox("box", { size: 1 }, scene);
+box.material = defaultMaterial;
+
+//
+
+let numPerSide = 140, size = 200, ofst = size / (numPerSide - 1);
+
+let m = Matrix.Identity();
+var col = 0, index = 0;
+
+let instanceCount = numPerSide * numPerSide * numPerSide;
+
+let matricesData = new Float32Array(16 * instanceCount);
+let colorData = new Float32Array(4 * instanceCount);
+
+for (var x = 0; x < numPerSide; x++) {
+    m.m[12] = -size / 2 + ofst * x;
+    for (var y = 0; y < numPerSide; y++) {
+        m.m[13] = -size / 2 + ofst * y;
+        for (var z = 0; z < numPerSide; z++) {
+            m.m[14] = -size / 2 + ofst * z;
+
+            m.copyToArray(matricesData, index * 16);
+
+            var coli = Math.floor(col);
+
+            colorData[index * 4 + 0] = ((coli & 0xff0000) >> 16) / 255;
+            colorData[index * 4 + 1] = ((coli & 0x00ff00) >>  8) / 255;
+            colorData[index * 4 + 2] = ((coli & 0x0000ff) >>  0) / 255;
+            // colorData[index * 4 + 0] = defaultMaterial.emissiveColor.r;
+            // colorData[index * 4 + 1] = defaultMaterial.emissiveColor.g;
+            // colorData[index * 4 + 2] = defaultMaterial.emissiveColor.b;
+            colorData[index * 4 + 3] = 1.0;
+
+            index++;
+            col += 0xffffff / instanceCount;
+        }
+    }
+}
+
+box.thinInstanceSetBuffer("matrix", matricesData, 16);
+box.thinInstanceSetBuffer("color", colorData, 4);
+
+//
+
+// hide/show the Inspector
+window.addEventListener("keydown", (ev) => {
+    // Shift+Ctrl+Alt+I
+    if (ev.shiftKey && ev.ctrlKey && ev.altKey && ev.keyCode === 73) {
+        if (scene.debugLayer.isVisible()) {
+            scene.debugLayer.hide();
+        } else {
+            scene.debugLayer.show({
+                embedMode: true, overlay: true
+            });
+        }
+    }
+});
+
+window.addEventListener( 'resize', () => {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    engine.setSize(width, height);
+    engine.resize();
+} );
+
+// run the main render loop
+engine.runRenderLoop(() => {
+    stats.begin();
+    scene.render();
+    stats.end();
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import {
+    Color3, FreeCamera, InstancedMesh, Matrix, SceneLoader, StandardMaterial, Tools, VertexBuffer, VertexData,
+    Engine, Scene, ArcRotateCamera, Vector3, HemisphericLight, Mesh, MeshBuilder, Quaternion
+} from "@babylonjs/core/";
+//import { OBJFileLoader } from "@babylonjs/loaders";
+import "@babylonjs/core/Debug/debugLayer";
+import "@babylonjs/inspector";
+import Stats from "stats.js";
+
+let canvas = document.getElementById("canvas") as HTMLCanvasElement;
+        
+let stats = new Stats();
+stats.showPanel(0);
+document.body.appendChild(stats.dom);
+
+// initialize babylon scene and engine
+let engine = new Engine(canvas, true);
+let scene = new Scene(engine);
+
+// var camera: ArcRotateCamera = new ArcRotateCamera("arcCamera", Tools.ToRadians(90), Tools.ToRadians(90), 10, Vector3.Zero(), scene);
+var camera: FreeCamera = new FreeCamera("freeCamera", new Vector3(0, 0, 0), scene);
+camera.attachControl(canvas, true);
+
+let light: HemisphericLight = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
+
+const defaultMaterial: StandardMaterial = new StandardMaterial("defaultMaterial", scene);
+// defaultMaterial.alpha = 1;
+// defaultMaterial.disableLighting = true;
+defaultMaterial.diffuseColor = new Color3(142 / 255, 139 / 255, 175 / 255);
+// defaultMaterial.emissiveColor = new Color3(142 / 255, 139 / 255, 175 / 255);
+
+let box: Mesh = MeshBuilder.CreateBox("box", { size: 30 }, scene);
+box.material = defaultMaterial;
+
+//
+
+let boxWorldMatrix: Matrix[]; // to store box thinintstance world metrices
+let boxPositions = [];
+
+let boxesCount: number; // = 5_000;
+let matricesBuffer: Float32Array; // = new Float32Array(16 * boxesCount);
+let offset: number; // = 0;
+
+const sharedScale: Vector3 = new Vector3(1, 1, 1);
+const sharedRotate: Quaternion = Quaternion.RotationYawPitchRoll(0, 0, 0);
+
+let fileName = "../modules/Блочная модель.csv";
+Tools.LoadFile(fileName, (data: string) => {
+    let blocks: string[] = data.split(/\r?\n/);
+    let targetPosition: Vector3 = Vector3.Zero();
+
+    console.log(blocks.length);
+
+    boxesCount = blocks.length - 1;
+    matricesBuffer =  new Float32Array(16 * boxesCount);
+    offset = 0;
+
+    for (let i: number = 1; i <= boxesCount; i++)
+    {
+        let subBlock = blocks[i].split(';');
+        let x = +subBlock[0],
+            y = +subBlock[1],
+            z = +subBlock[2]
+            // , size = +subBlock[3]
+            ;
+
+        boxPositions.push({ x: x, y: y, z: z });
+
+        Matrix.Compose(sharedScale, sharedRotate, new Vector3(x, y, z)).copyToArray(matricesBuffer, offset);
+        offset += 16;
+
+        if (i === 1)
+            targetPosition = new Vector3(x, y, z);
+    }
+
+    box.thinInstanceSetBuffer("matrix", matricesBuffer);
+    boxWorldMatrix = box.thinInstanceGetWorldMatrices();
+
+    //camera.position = targetPosition;
+});
+
+//
+
+// hide/show the Inspector
+window.addEventListener("keydown", (ev) => {
+    // Shift+Ctrl+Alt+I
+    if (ev.shiftKey && ev.ctrlKey && ev.altKey && ev.keyCode === 73) {
+        if (scene.debugLayer.isVisible()) {
+            scene.debugLayer.hide();
+        } else {
+            scene.debugLayer.show({
+                embedMode: true, overlay: true
+            });
+        }
+    }
+});
+
+window.addEventListener( 'resize', () => {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    engine.setSize(width, height);
+    engine.resize();
+} );
+
+// run the main render loop
+engine.runRenderLoop(() => {
+    stats.begin();
+    scene.render();
+    stats.end();
+});
+

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Babylon.js: block model</title>
+		<style>
+			body {
+				margin: 0;
+			}
+			#canvas {
+				width:100%;
+				height:100%;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas id="canvas"></canvas>
+		<script src="https://cdn.babylonjs.com/babylon.js"></script>
+		<script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+		<!-- <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script> -->
+		<!-- <script src="https://cdn.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script> -->
+		<!-- <script src="https://cdn.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script> -->
+		<!-- <script src="https://cdn.babylonjs.com/serializers/babylonjs.serializers.min.js"></script> -->
+		<!-- <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script> -->
+		<script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+		<!-- <script src="https://cdn.babylonjs.com/viewer/babylon.viewer.js"></script> -->
+
+		<script type="importmap">
+			{
+				"imports": {
+					"stats": "./stats.module.js"
+				}
+			}
+		</script>
+
+		<script type="module">
+			import Stats from "stats";
+
+			let stats = new Stats();
+			stats.showPanel(0);
+			document.body.appendChild(stats.dom);
+
+			// initialize babylon scene and engine
+			let canvas = document.getElementById("canvas");
+			let engine = new BABYLON.Engine(canvas, true);
+			engine.setSize(window.innerWidth, window.innerHeight);
+			let scene = new BABYLON.Scene(engine);
+
+			// var camera: ArcRotateCamera = new ArcRotateCamera("arcCamera", Tools.ToRadians(90), Tools.ToRadians(90), 10, Vector3.Zero(), scene);
+			let camera = new BABYLON.FreeCamera("freeCamera", new BABYLON.Vector3(0, 0, 0), scene);
+			camera.attachControl(canvas, true);
+
+			// let light: HemisphericLight = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
+
+			const defaultMaterial = new BABYLON.StandardMaterial("defaultMaterial", scene);
+			// defaultMaterial.alpha = 1;
+			defaultMaterial.disableLighting = true;
+			// defaultMaterial.diffuseColor = new Color3(142 / 255, 139 / 255, 175 / 255);
+			defaultMaterial.emissiveColor = new BABYLON.Color3(142 / 255, 139 / 255, 175 / 255);
+			// defaultMaterial.wireframe = true;
+
+			let box = BABYLON.MeshBuilder.CreateBox("box", { size: 30 }, scene);
+			box.material = defaultMaterial;
+
+			//
+
+			let boxesCount;
+			let matricesBuffer;
+
+			const sharedScale = new BABYLON.Vector3(1, 1, 1);
+			const sharedRotation = BABYLON.Quaternion.RotationYawPitchRoll(0, 0, 0);
+
+			let fileName = "./Блочная модель.csv";
+			BABYLON.Tools.LoadFile(fileName, (data) => {
+				let blocks = data.split(/\r?\n/);
+				let targetPosition = BABYLON.Vector3.Zero();
+
+				boxesCount = 45_000; // blocks.length - 1;
+				console.log(boxesCount);
+
+				matricesBuffer = new Float32Array(16 * boxesCount);
+
+				for (let i = 1; i <= boxesCount; i++)
+				{
+					let subBlock = blocks[i].split(';');
+					let x = +subBlock[0],
+						y = +subBlock[1],
+						z = +subBlock[2]
+						// , size = +subBlock[3]
+						;
+
+					BABYLON.Matrix
+						.Compose(sharedScale, sharedRotation, new BABYLON.Vector3(x, y, z))
+						.copyToArray(matricesBuffer, (i - 1) * 16);
+
+					if (i === 1)
+						targetPosition = new BABYLON.Vector3(x, y, z);
+				}
+
+				box.thinInstanceSetBuffer("matrix", matricesBuffer);
+
+				// camera.position = targetPosition;
+
+			});
+
+			//
+
+			// hide/show the Inspector
+			window.addEventListener("keydown", (ev) => {
+				// Shift+Ctrl+Alt+I
+				if (ev.shiftKey && ev.ctrlKey && ev.altKey && ev.keyCode === 73) {
+					if (scene.debugLayer.isVisible()) {
+						scene.debugLayer.hide();
+					} else {
+						scene.debugLayer.show({
+							embedMode: true, overlay: true
+						});
+					}
+				}
+			});
+
+			window.addEventListener( 'resize', () => {
+				const width = window.innerWidth;
+				const height = window.innerHeight;
+				engine.setSize(width, height);
+				engine.resize();
+			} );
+
+			// run the main render loop
+			engine.runRenderLoop(() => {
+				stats.begin();
+				scene.render();
+				stats.end();
+			});
+		</script>
+	</body>
+</html>
