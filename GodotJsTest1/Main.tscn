@@ -1,0 +1,31 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Soldier.glb" type="PackedScene" id=1]
+[ext_resource path="res://Main.cs" type="Script" id=2]
+
+[sub_resource type="BoxShape" id=1]
+
+[sub_resource type="CubeMesh" id=2]
+
+[node name="Main" type="Spatial"]
+script = ExtResource( 2 )
+
+[node name="Ground" type="StaticBody" parent="."]
+transform = Transform( 1.00202, 0, 0, 0, 1.00202, 0, 0, 0, 1.00202, 0, -1, 0 )
+
+[node name="CollisionShape" type="CollisionShape" parent="Ground"]
+transform = Transform( 30, 0, 0, 0, 1, 0, 0, 0, 30, 0, 0, 0 )
+shape = SubResource( 1 )
+
+[node name="MeshInstance" type="MeshInstance" parent="Ground"]
+transform = Transform( 30, 0, 0, 0, 1, 0, 0, 0, 30, 0, 0, 0 )
+mesh = SubResource( 2 )
+
+[node name="Soldier" parent="." instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2.77452, 0, 0 )
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( 1, 0, 0, 0, 0.661783, 0.749695, 0, -0.749695, 0.661783, 0.328564, 17.4927, 22.0684 )
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( -0.965863, 0.171205, -0.194416, 0.0285341, 0.816228, 0.577024, 0.257477, 0.551779, -0.79325, -7.1978, 21.8596, -29.0533 )
