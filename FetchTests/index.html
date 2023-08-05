@@ -1,0 +1,20 @@
+<script>
+    // const response = fetch('http://localhost:5103/api/v1/BlockModel/test');
+    // console.log(response);
+    fetch('http://localhost:5103/api/v1/BlockModel/test', {
+        mode: 'no-cors',
+        cache: "no-cache",
+        headers: {
+            "Content-Type": "application/json",
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+        },})
+        .then(response => console.log(JSON.parse(response)))
+        // .then(data => {
+        //     console.table(data);
+        //     return data;
+        // })
+        .catch(e => {
+            console.log(e);
+            return e;
+        });
+</script>

@@ -1,0 +1,96 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Babylon.js";
+}
+
+<script async="" src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+<script src="https://cdn.babylonjs.com/babylon.js"></script>
+<script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+<script src="https://cdn.babylonjs.com/loaders/babylon.glTFFileLoader.js"></script>
+<script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
+<script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
+
+<!-- touch-action="none" for best results from PEP -->
+
+
+
+<div id="container" class="text-center">
+    <h1 id="count" class="display-4">Babylon.js</h1>
+    <canvas id="renderCanvas" touch-action="none" style="width: 100%"></canvas>
+</div>
+
+<script type="module">
+
+    import Stats from 'https://cdnjs.cloudflare.com/ajax/libs/stats.js/17/Stats.js'
+
+    let stats;
+
+    const canvas = document.getElementById("renderCanvas"); // Get the canvas element
+    const count = document.getElementById('count');
+      const engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
+
+      // Add your code here matching the playground format
+      const createScene = function () {
+            const scene = new BABYLON.Scene(engine);
+
+            let x = 0;
+            let y = 0;
+
+            BABYLON.SceneLoader.ImportMesh("", "https://threejs.org/examples/models/gltf/", "Soldier.glb", scene, function (newMeshes, particleSystems, skeletons, animationGroups) {
+                  const hero = newMeshes[0];
+                  const sambaAnim = scene.getAnimationGroupByName("Run");
+                  sambaAnim.start(true, 1.0, sambaAnim.from, sambaAnim.to, false);
+
+                  hero.position.x = x;
+                  hero.position.y = y;
+
+                    let timerId = setTimeout(function request() {
+                        if (y == 101 && x == 101) {
+                            return;
+                        }
+
+                        x = x + 1;
+                        if (x == 101) {
+                            x = 0;
+                            y = y + 1;
+                        }
+
+                        var newInstance = hero.clone("i" + (y * 100 + x + 1));
+
+                        newInstance.position.x = x;
+                        newInstance.position.y = y;
+
+                        sambaAnim.start(true, 1.0, sambaAnim.from, sambaAnim.to, false);
+
+                        count.innerText = 'Babylon.js ' + (y * 100 + x + 1);
+
+                        timerId = setTimeout(request, 10);
+
+                    }, 10);
+            });
+
+            const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 15, new BABYLON.Vector3(0, 0, 0));
+            camera.attachControl(canvas, true);
+            const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0));
+
+            return scene;
+      };
+
+      const scene = createScene(); //Call the createScene function
+
+      stats = new Stats();
+
+      container.appendChild( stats.dom );
+
+      // Register a render loop to repeatedly render the scene
+      engine.runRenderLoop(function () {
+        scene.render();
+        stats.update();
+      });
+
+      // Watch for browser/canvas resize events
+      window.addEventListener("resize", function () {
+        engine.resize();
+      });
+</script>

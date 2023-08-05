@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>three.js webgl - instancing - performance</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<link type="text/css" rel="stylesheet" href="main.css">
+	<style>
+		#info {
+			background-color: rgba(0,0,0,0.75);
+		}
+
+		.lil-gui .gui-stats {
+			line-height: var(--widget-height);
+			padding: var(--padding);
+		}
+	</style>
+</head>
+<body>
+	<div id="container"></div>
+
+	<!-- Import maps polyfill -->
+	<!-- Remove this when import maps will be widely supported -->
+	<script async src="./es-module-shims.js"></script>
+
+	<script type="importmap">
+		{
+			"imports": {
+				"three": "./three.module.js",
+				"three/addons/libs/": "./",
+				"three/addons/controls/": "./",
+				"three/addons/utils/": "./"
+			}
+		}
+	</script>
+
+	<script type="text/javascript" src="./blocks.jsonp"></script>
+
+	<script type="module">
+		import * as THREE from 'three';
+
+		import Stats from 'three/addons/libs/stats.module.js';
+		import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+
+		import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+		import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
+
+		let container, stats, gui, guiStatsEl;
+		let camera, light, controls, scene, renderer, material, wireframe;
+		let dataMin, dataMax, dataVal;
+		let cameraSet = false;
+
+		// gui
+
+		const Method = {
+			INSTANCED: 'INSTANCED',
+			MERGED: 'MERGED',
+			NAIVE: 'NAIVE'
+		};
+
+		const View = {
+			SOLID: 'SOLID',
+			WIREFRAME: 'WIREFRAME'
+		};
+
+		const BlockColor = {
+			STANDART: 'STANDART',
+			VALUE: 'VALUE'
+		};
+
+
+
+		const api = {
+			method: Method.INSTANCED,
+			count: 10000000,
+			wireframe: View.SOLID,
+			blockcolor: BlockColor.STANDART,
+                        camera_x: 2830,
+			camera_y: 715,
+			camera_z: 4300,
+                        light_x: -10000,
+			light_y: 10000,
+			light_z: -10000,
+			light_volume: 1
+		};
+
+		//
+
+		init();
+		initMesh();
+		animate();
+
+		//
+
+		function clean() {
+
+			const meshes = [];
+
+			scene.traverse( function ( object ) {
+
+				if ( object.isMesh ) meshes.push( object );
+
+			} );
+
+			for ( let i = 0; i < meshes.length; i ++ ) {
+
+				const mesh = meshes[ i ];
+				mesh.material.dispose();
+				mesh.geometry.dispose();
+
+				scene.remove( mesh );
+
+			}
+
+		}
+
+		function randomizeMatrix (idx, matrix) {
+
+			const position = new THREE.Vector3();
+			const rotation = new THREE.Euler();
+			const quaternion = new THREE.Quaternion();
+			const scale = new THREE.Vector3();
+
+			position.x = blocks[idx][0];
+			position.y = blocks[idx][1];
+			position.z = blocks[idx][2];
+
+			rotation.x = 0;
+			rotation.y = 0;
+			rotation.z = 0;
+
+			quaternion.setFromEuler( rotation );
+
+			scale.x = scale.y = scale.z = 1;
+
+			matrix.compose( position, quaternion, scale );
+		};
+
+		function setLight() {
+			light.intensity = api.light_volume;
+			light.position.set( api.light_x, api.light_y, api.light_z);		
+		}
+
+		function setCamera() {
+			camera.position.x = api.camera_x;
+			camera.position.y = api.camera_y;
+			camera.position.z = api.camera_z;
+
+			camera.updateProjectionMatrix();
+		}
+
+
+		function initMesh() {
+
+			clean();
+
+			// make instances
+					const geometry = new THREE.BoxGeometry( 30, 30, 7.5 );
+					material = new THREE.MeshPhongMaterial({ wireframe:false, color:0xffffff, emissive : new THREE.Color(142 / 255, 139 / 255, 175 / 255), shininess: 50 });
+					wireframe = new THREE.MeshBasicMaterial({ wireframe:true, color:0x00ff00 });
+
+					geometry.computeVertexNormals();
+
+					console.time( api.method + ' (build)' );
+
+					switch ( api.method ) {
+
+						case Method.INSTANCED:
+							makeInstanced( geometry );
+							break;
+
+						case Method.MERGED:
+							makeMerged( geometry );
+							break;
+
+						case Method.NAIVE:
+							makeNaive( geometry );
+							break;
+
+					}
+
+					console.timeEnd( api.method + ' (build)' );
+			}
+
+		function getColorByValue (value)
+		{
+			const logValue = (value === 0) ? 0 : Math.log(value);
+
+			return new THREE.Color(0, logValue, 0);
+		}
+
+		function makeInstanced( geometry ) {
+
+			const items = Math.min(api.count, blocks.length);
+
+			const matrix = new THREE.Matrix4();
+			const mesh = new THREE.InstancedMesh( geometry, (api.wireframe == View.SOLID ) ? material : wireframe, items );
+			for ( let i = 0; i < items; i ++ ) {
+
+				randomizeMatrix(i, matrix );
+
+				mesh.setMatrixAt( i, matrix );
+				if (api.blockcolor == BlockColor.VALUE)
+					mesh.setColorAt(i, getColorByValue (blocks[i][3]));
+
+			}
+
+			scene.add( mesh );
+
+			console.log('units: ' + items);
+/*
+			if (!cameraSet) {
+
+				const box = new THREE.Box3().setFromObject(scene);
+				const boxSize = box.getSize(new THREE.Vector3()).length();
+				const boxCenter = box.getCenter(new THREE.Vector3());
+                		frameArea(boxSize * 1.2, boxSize, boxCenter, camera);
+				cameraSet = true;
+			}
+*/			
+
+			const geometryByteLength = getGeometryByteLength( geometry );
+
+			guiStatsEl.innerHTML = [
+
+				'<i>GPU draw calls</i>: 1',
+				'<i>GPU memory</i>: ' + formatBytes( api.count * 16 + geometryByteLength, 2 )
+
+			].join( '<br/>' );
+
+		}
+
+		function makeMerged( geometry ) {
+
+			const items = Math.min(api.count, blocks.length);
+
+			const geometries = [];
+			const matrix = new THREE.Matrix4();
+
+			for ( let i = 0; i < items; i ++ ) {
+
+				randomizeMatrix(i, matrix );
+
+				const instanceGeometry = geometry.clone();
+				instanceGeometry.applyMatrix4( matrix );
+
+				geometries.push( instanceGeometry );
+
+			}
+
+			const mergedGeometry = BufferGeometryUtils.mergeGeometries( geometries );
+			const mesh = new THREE.Mesh( mergedGeometry, material );
+			scene.add( mesh );
+
+			const box = new THREE.Box3().setFromObject(scene);
+			const boxSize = box.getSize(new THREE.Vector3()).length();
+			const boxCenter = box.getCenter(new THREE.Vector3());
+
+			// set the camera to frame the box
+			frameArea(boxSize * 1.2, boxSize, boxCenter, camera);
+
+			guiStatsEl.innerHTML = [
+
+				'<i>GPU draw calls</i>: 1',
+				'<i>GPU memory</i>: ' + formatBytes( getGeometryByteLength( mergedGeometry ), 2 )
+
+			].join( '<br/>' );
+
+		}
+
+		function makeNaive( geometry ) {
+
+			const items = Math.min(api.count, blocks.length);
+			const matrix = new THREE.Matrix4();
+
+			for ( let i = 0; i < items; i ++ ) {
+
+				randomizeMatrix(i, matrix );
+
+				const mesh = new THREE.Mesh( geometry, material );
+				mesh.applyMatrix4( matrix );
+
+				scene.add( mesh );
+			}
+
+			const box = new THREE.Box3().setFromObject(scene);
+			const boxSize = box.getSize(new THREE.Vector3()).length();
+			const boxCenter = box.getCenter(new THREE.Vector3());
+
+			// set the camera to frame the box
+			frameArea(boxSize * 1.2, boxSize, boxCenter, camera);
+
+
+			//
+
+			const geometryByteLength = getGeometryByteLength( geometry );
+
+			guiStatsEl.innerHTML = [
+
+				'<i>GPU draw calls</i>: ' + api.count,
+				'<i>GPU memory</i>: ' + formatBytes( api.count * 16 + geometryByteLength, 2 )
+
+			].join( '<br/>' );
+
+		}
+
+function updateGuiCameraPos()
+{
+  api.camera_x = camera.position.x;
+  api.camera_y = camera.position.y;
+  api.camera_z = camera.position.z;
+
+  gui.folders.forEach(f => f.controllers.forEach(c => c.updateDisplay()));
+}
+
+function frameArea(sizeToFitOnScreen, boxSize, boxCenter, camera) {
+
+  const halfSizeToFitOnScreen = sizeToFitOnScreen * 0.5;
+  const halfFovY = THREE.MathUtils.degToRad(camera.fov * .5);
+  const distance = halfSizeToFitOnScreen / Math.tan(halfFovY);
+ 
+  // compute a unit vector that points in the direction the camera is now
+  // from the center of the box
+  const direction = (new THREE.Vector3()).subVectors(camera.position, boxCenter).normalize();
+ 
+  // move the camera to a position distance units way from the center
+  // in whatever direction the camera was from the center already
+  camera.position.copy(direction.multiplyScalar(distance).add(boxCenter));
+ 
+  // pick some near and far values for the frustum that
+  // will contain the box.
+
+//  camera.near = boxSize / 100;
+  camera.near = 0.1;
+  camera.far = boxSize * 100;
+ 
+  camera.updateProjectionMatrix();
+ 
+  // point the camera to look at the center of the box
+  camera.lookAt(boxCenter.x, boxCenter.y, boxCenter.z);
+
+  updateGuiCameraPos();
+}
+
+
+		function init() {
+
+			const width = window.innerWidth;
+			const height = window.innerHeight;
+
+			// camera
+
+			camera = new THREE.PerspectiveCamera( 50, width / height, 0.1, 100000 );
+			camera.position.x = api.camera_x;
+			camera.position.y = api.camera_y;
+			camera.position.z = api.camera_z;
+
+			// renderer
+
+			renderer = new THREE.WebGLRenderer( { antialias: true } );
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( width, height );
+
+			container = document.getElementById( 'container' );
+			container.appendChild( renderer.domElement );
+
+			// scene
+
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color( 0x33334B );
+
+//			light = new THREE.AmbientLight( 0x404040 ); // soft white light
+			light = new THREE.HemisphereLight( 0xFFFFFF, 0x000000, api.light_volume );
+			light.position.set( api.light_x, api.light_y, api.light_z);
+			
+			scene.add( light );
+
+			// controls
+
+			controls = new OrbitControls( camera, renderer.domElement );
+			controls.addEventListener('change', updateGuiCameraPos);
+//			controls.autoRotate = true;
+			controls.autoRotate = false;
+
+			// stats
+
+			dataMax = 0;
+			dataMin = Number.MAX_SAFE_INTEGER;
+			for (let i=0; i<blocks.length; i++) {
+				if (dataMin > blocks[i][3])
+					dataMin = blocks[i][3];
+
+				if (dataMax < blocks[i][3])
+					dataMax = blocks[i][3];
+
+			}
+
+			dataVal = (dataMax - dataMin);
+			console.log (dataMin + ' - ' + dataMax);
+
+			stats = new Stats();
+			container.appendChild( stats.dom );
+
+			// gui
+
+			gui = new GUI();
+			const optionsFolder = gui.addFolder( 'Options' );
+			optionsFolder.add( api, 'method', Method ).onChange( initMesh );
+			optionsFolder.add( api, 'count', 1, 10000000 ).step( 1 ).onChange( initMesh );
+			optionsFolder.add( api, 'wireframe', View ).onChange( initMesh );
+			optionsFolder.add( api, 'blockcolor', BlockColor ).onChange( initMesh );
+
+			const cameraFolder = gui.addFolder( 'Camera' );
+			cameraFolder.add( api, 'camera_x', -10000, 10000 ).step( 1 ).onChange( setCamera );
+			cameraFolder.add( api, 'camera_y', -10000, 10000 ).step( 1 ).onChange( setCamera );
+			cameraFolder.add( api, 'camera_z', -10000, 10000 ).step( 1 ).onChange( setCamera );
+
+			const lightFolder = gui.addFolder( 'Light' );
+
+			lightFolder.add( api, 'light_x', -10000, 10000 ).step( 1 ).onChange( setLight );
+			lightFolder.add( api, 'light_y', -10000, 10000 ).step( 1 ).onChange( setLight );
+			lightFolder.add( api, 'light_z', -10000, 10000 ).step( 1 ).onChange( setLight );
+			lightFolder.add( api, 'light_volume', 0, 1 ).step( 0.1 ).onChange( setLight );
+
+			const perfFolder = gui.addFolder( 'Performance' );
+
+			guiStatsEl = document.createElement( 'div' );
+			guiStatsEl.classList.add( 'gui-stats' );
+
+			perfFolder.$children.appendChild( guiStatsEl );
+			perfFolder.open();
+
+			// listeners
+
+			window.addEventListener( 'resize', onWindowResize );
+
+			Object.assign( window, { scene } );
+
+		}
+
+		//
+
+		function onWindowResize() {
+
+			const width = window.innerWidth;
+			const height = window.innerHeight;
+
+			camera.aspect = width / height;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize( width, height );
+
+		}
+
+		function animate() {
+
+			requestAnimationFrame( animate );
+
+			controls.update();
+			stats.update();
+
+			render();
+
+		}
+
+		function render() {
+
+			renderer.render( scene, camera );
+
+		}
+
+		//
+
+		function getGeometryByteLength( geometry ) {
+
+			let total = 0;
+
+			if ( geometry.index ) total += geometry.index.array.byteLength;
+
+			for ( const name in geometry.attributes ) {
+
+				total += geometry.attributes[ name ].array.byteLength;
+
+			}
+
+			return total;
+
+		}
+
+		// Source: https://stackoverflow.com/a/18650828/1314762
+		function formatBytes( bytes, decimals ) {
+
+			if ( bytes === 0 ) return '0 bytes';
+
+			const k = 1024;
+			const dm = decimals < 0 ? 0 : decimals;
+			const sizes = [ 'bytes', 'KB', 'MB' ];
+
+			const i = Math.floor( Math.log( bytes ) / Math.log( k ) );
+
+			return parseFloat( ( bytes / Math.pow( k, i ) ).toFixed( dm ) ) + ' ' + sizes[ i ];
+
+		}
+
+	</script>
+
+</body>
+</html>

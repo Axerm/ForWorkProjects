@@ -1,0 +1,8 @@
+{
+  "type": "module",
+
+  "dependencies": {
+    "three": "^0.152.2",
+    "vite": "^4.3.4"
+  }
+}
